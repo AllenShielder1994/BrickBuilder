@@ -185,11 +185,9 @@ class Radio extends Widget {
         console.log(this.property.value);
         // this.property.value != undefined ? this.this.value = this.property.value : this.this.value = text;
         this.this.value = this.property.value != undefined ? this.property.value : text;
-
         this.this.checked = this.property.checked;
 
         let textContent = document.createTextNode(text)
-
         text != undefined ? this.this.parentNode.appendChild(textContent) : null;
 
         this.checked = value => this.this.checked = value != undefined ? value : this.this.checked;
@@ -214,7 +212,7 @@ class Radio extends Widget {
 //checkbox
 class Checkbox extends Widget {
     constructor(prop) {
-
+        
         Checkbox.property = prop;
         let text = Checkbox.property.text;
         Checkbox.property.tag = 'input';
@@ -226,11 +224,9 @@ class Checkbox extends Widget {
         //console.log(this.property.value);
         // this.property.value != undefined ? this.this.value = this.property.value : this.this.value = text;
         this.this.value = this.property.value != undefined ? this.property.value : text;
-
         this.this.checked = this.property.checked;
 
         let textContent = document.createTextNode(text)
-
         text != undefined ? this.this.parentNode.appendChild(textContent) : null;
 
         this.checked = value => this.this.checked = value != undefined ? value : this.this.checked;
@@ -391,8 +387,8 @@ class Image extends Widget {
         Input.property.tag = 'img';
         super(Input.property);
 
-        this.property.url = this.property.url != undefined ? this.this.setAttribute('src', this.property.url) : null;
-        this.property.alt != undefined ? this.this.setAttribute('alt', this.property.alt) : null;
+        this.property.url = this.property.url != undefined ? this.this.src = this.property.url : null;
+        this.property.alt != undefined ? this.this.alt = this.property.alt : null;
 
         //this.url = value => this.this.setAttribute('src', value);
         this.url = value => this.this.src != undefined ? value :this.this.src;
@@ -409,7 +405,7 @@ class Voice extends Widget {
         Voice.property.controls = 'controls';
         super(Voice.property);
 
-        this.property.url = this.property.url != undefined ? this.this.setAttribute('src', this.property.url) : null;
+        this.property.url = this.property.url != undefined ? this.this.src = this.property.url : null;
         this.this.autoplay = this.property.autoplay;
         this.this.loop = this.property.loop;
         this.this.muted = this.property.muted;
@@ -432,8 +428,8 @@ class Video extends Widget {
         Video.property.controls = 'controls';
         super(Video.property);
 
-        this.property.url = this.property.url != undefined ? this.this.setAttribute('src', this.property.url) : null;
-        this.property.poster = this.property.poster != undefined ? this.this.setAttribute('poster', this.property.poster) : null;
+        this.property.url = this.property.url != undefined ? this.this.src = this.property.url : null;
+        this.property.poster = this.property.poster != undefined ? this.this.poster = this.property.poster : null;
         this.this.autoplay = this.property.autoplay;
         this.this.loop = this.property.loop;
         this.this.muted = this.property.muted;
