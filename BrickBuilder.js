@@ -6,12 +6,12 @@ const docFragment = document.createDocumentFragment();
 WidgetBuilder = {
     init: prop => {
         let widget = document.createElement(prop.tag);
-
+        
         prop.name != undefined ? widget.setAttribute('name', prop.name) : null;
         prop.id != undefined ? widget.setAttribute('id', prop.id) : null;
         prop.class != undefined ? widget.setAttribute('class', prop.class) : null;
-        typeof prop.visible === 'boolean' ? widget.hidden = !prop.visible : null;
-
+        //typeof prop.visible === 'boolean' ? widget.hidden = !prop.visible : null;
+ 
         if (prop.style != undefined) {
             let style = JSON.stringify(prop.style).replace(/["{}]/g, '');
             style = style.replace(/_/g, '-');
@@ -19,7 +19,8 @@ WidgetBuilder = {
         }
 
         for (let key in prop.attr) {
-            (key != 'id') && (key != 'class') && (key != 'style') && (key != 'name') ? widget.setAttribute(key, prop.attr[key]) : null;
+            //(key != 'id') && (key != 'class') && (key != 'style') && (key != 'name') ? widget.setAttribute(key, prop.attr[key]) : null;
+            ! ['id', 'class', 'style', 'name'].includes(key) ? widget.setAttribute(key, prop.attr[key]) : null;
         }
 
         widget.innerHTML = prop.text != undefined ? prop.text : null;
@@ -27,13 +28,30 @@ WidgetBuilder = {
         return widget;
     },
 
-    attr: (attribute, value, widget) => { (attribute != 'id') && (attribute != 'class') && (attribute != 'style') && (attribute != 'name') ? widget.this.setAttribute(attribute, value) : null; },
+    //attr: (attribute, value, widget) => { (attribute != 'id') && (attribute != 'class') && (attribute != 'style') && (attribute != 'name') ? widget.this.setAttribute(attribute, value) : null; },
+    attr: (attribute, value, widget) => { 
+        ! ['id','class', 'style', 'name'].includes(attribute) ? 
+            vaule != undefined ?
+                widget.this.setAttribute(attribute, value) 
+            : null
+        : null;
+    },
 
-    id: (value, widget) => { widget.this.setAttribute('id', value) },
+    id: (value, widget) => { 
+        value != undefined ? widget.this.setAttribute('id', value) : null; 
+        return widget.this.getAttribute('id');
+    },
 
-    name: (value, widget) => { widget.this.setAttribute('name', value); },
+    name: (value, widget) => { 
+        //console.log(widget.this.attributes.name);
+        value != undefined ? widget.this.setAttribute('name', value) : null;
+        return widget.this.getAttribute('name');
+    },
 
-    class: (value, widget) => { widget.this.setAttribute('class', value); },
+    class: (value, widget) => {
+        value != undefined ? widget.this.setAttribute('class', value) : null;
+        return widget.this.getAttribute('class');
+    },
 
     style: (value, widget) => {
         widget.property.style = value;
@@ -42,24 +60,44 @@ WidgetBuilder = {
             style = style.replace(/_/g, '-');
             widget.this.setAttribute('style', style.replace(/,/g, ';'));
         }
+        //return the string type;
+        //convert string type into the object before return
+        let strStyle = widget.this.getAttribute('style').replaceAll(';','","');
+
+        return eval ('({"'+strStyle.replaceAll(':','":"')+'"})');
     },
 
     height: (value, widget) => {
         let style = widget.this.getAttribute("style");
-        widget.property.style.height != undefined ?
-            style = style.indexOf('height') == 0 ?
-                style.replace(/^height:[ ]{0,}[-0-9.0-9]{1,}[ ]{0,}[A-Za-z]{0,5}/g, 'height:' + value) : style.replace(/;height:[ ]{0,}[-0-9.0-9]{1,}[ ]{0,}[A-Za-z]{0,5}/g, ';height:' + value)
-            : style = style + ';height:' + value;
+        value != undefined ?
+            widget.property.style.height != undefined ?
+                style = style.indexOf('height') == 0 ?
+                    style.replace(/^height:[ ]{0,}[-0-9.0-9]{1,}[ ]{0,}[A-Za-z]{0,5}/g, 'height:' + value)
+                : style.replace(/;height:[ ]{0,}[-0-9.0-9]{1,}[ ]{0,}[A-Za-z]{0,5}/g, ';height:' + value)
+            : style = style + ';height:' + value
+        : null;
         widget.this.setAttribute('style', style);
+
+        let strStyle = widget.this.getAttribute('style').replaceAll(';','","');
+
+        return eval ('({"'+strStyle.replaceAll(':','":"')+'"})').height;
+
     },
 
     width: (value, widget) => {
         let style = widget.this.getAttribute("style");
-        widget.property.style.width != undefined ?
-            style = style.indexOf('width') == 0 ?
-                style.replace(/^width:[ ]{0,}[-0-9.0-9]{1,}[ ]{0,}[A-Za-z]{0,5}/g, 'width:' + value) : style.replace(/;width:[ ]{0,}[-0-9.0-9]{1,}[ ]{0,}[A-Za-z]{0,5}/g, ';width:' + value)
-            : style = style + ';width:' + value;
+        value != undefined ?
+            widget.property.style.width != undefined ?
+                style = style.indexOf('width') == 0 ?
+                    style.replace(/^width:[ ]{0,}[-0-9.0-9]{1,}[ ]{0,}[A-Za-z]{0,5}/g, 'width:' + value) 
+                : style.replace(/;width:[ ]{0,}[-0-9.0-9]{1,}[ ]{0,}[A-Za-z]{0,5}/g, ';width:' + value)
+            : style = style + ';width:' + value
+        : null;
         widget.this.setAttribute('style', style);
+
+        let strStyle = widget.this.getAttribute('style').replaceAll(';','","');
+
+        return eval ('({"'+strStyle.replaceAll(':','":"')+'"})').width;
     },
 
 
@@ -92,6 +130,8 @@ class Container extends Widget {
         Container.property = prop;
         Container.property.tag = 'container';
         super(Container.property);
+
+        this.text = value =>  this.this.innerHTML = value != undefined ? this.this.innerHTML = value :  this.this.innerHTML =  this.this.innerHTML;
     }
 }
 
@@ -102,6 +142,7 @@ class Button extends Widget {
         Button.property.tag = 'button';
         super(Button.property);
 
+        this.text = value =>  this.this.innerHTML = value != undefined ? this.this.innerHTML = value :  this.this.innerHTML =  this.this.innerHTML;
     }
 }
 
@@ -123,8 +164,8 @@ class Text extends Widget {
 
         this.property.align != undefined ? this.this.align = this.property.align : null;
 
-        this.align = value => this.this.align = value;
-
+        this.align = value => this.this.align = value != undefined ? value : this.this.align = 'left';
+        this.text = value =>  this.this.innerHTML = value != undefined ? value :  this.this.innerHTML =  this.this.innerHTML;
     }
 
 }
@@ -142,7 +183,8 @@ class Radio extends Widget {
         //this.this.setAttribute('type','radio') ;
         this.this.type = 'radio';
         console.log(this.property.value);
-        this.property.value != undefined ? this.this.setAttribute('value', this.property.value) : this.this.setAttribute('value', text);
+        // this.property.value != undefined ? this.this.value = this.property.value : this.this.value = text;
+        this.this.value = this.property.value != undefined ? this.property.value : text;
 
         this.this.checked = this.property.checked;
 
@@ -150,15 +192,21 @@ class Radio extends Widget {
 
         text != undefined ? this.this.parentNode.appendChild(textContent) : null;
 
-        this.checked = value => this.this.checked = value;
-        this.value = value => { return this.this.value = value != undefined ? value : this.this.value; };
+        this.checked = value => this.this.checked = value != undefined ? value : this.this.checked;
+        this.value = value => this.this.value = value != undefined ? value : this.this.value;
         this.text = value => {
-            if (this.property.value != undefined) textContent.nodeValue = value;
-            else {
-                textContent.nodeValue = value;
-                this.this.setAttribute('value', value);
-            }
+            textContent.nodeValue = value != undefined ? value : textContent.nodeValue;
+            this.property.value != undefined ? this.this.value = textContent.nodeValue : null;
+            return textContent.nodeValue
         };
+        
+        // {
+        //     if (this.property.value != undefined) textContent.nodeValue = value;
+        //     else {
+        //         textContent.nodeValue = value;
+        //         this.this.setAttribute('value', value);
+        //     }
+        // };
     }
 
 }
@@ -174,9 +222,10 @@ class Checkbox extends Widget {
 
         super(Checkbox.property);
 
-        this.this.setAttribute('type', 'checkbox');
-        console.log(this.property.value);
-        this.property.value != undefined ? this.this.setAttribute('value', this.property.value) : this.this.setAttribute('value', text);
+        this.this.type = 'checkbox';
+        //console.log(this.property.value);
+        // this.property.value != undefined ? this.this.value = this.property.value : this.this.value = text;
+        this.this.value = this.property.value != undefined ? this.property.value : text;
 
         this.this.checked = this.property.checked;
 
@@ -184,14 +233,12 @@ class Checkbox extends Widget {
 
         text != undefined ? this.this.parentNode.appendChild(textContent) : null;
 
-        this.checked = value => this.this.checked = value;
-        this.value = value => { return this.this.value = value != undefined ? value : this.this.value; };
+        this.checked = value => this.this.checked = value != undefined ? value : this.this.checked;
+        this.value = value => this.this.value = value != undefined ? value : this.this.value;
         this.text = value => {
-            if (this.property.value != undefined) textContent.nodeValue = value;
-            else {
-                textContent.nodeValue = value;
-                this.this.setAttribute('value', value);
-            }
+            textContent.nodeValue = value != undefined ? value : textContent.nodeValue;
+            this.property.value != undefined ? this.this.value = textContent.nodeValue : null;
+            return textContent.nodeValue
         };
     }
 
@@ -201,11 +248,15 @@ class Checkbox extends Widget {
 class Input extends Widget {
     constructor(prop) {
         Input.property = prop;
+        let text = Input.property.text;
         Input.property.tag = 'input';
+        delete Input.property.text;
+
         super(Input.property);
+        let textContent = document.createTextNode(text)
+        text != undefined ? this.this.parentNode.insertBefore(textContent,this.this) : null;
 
         function props4Num() {
-
             this.property.autocomplete = this.property.autocomplete != undefined ? this.this.autocomplete = this.property.autocomplete : null;
             this.property.max = this.property.max != undefined ? this.this.max = this.property.max : null;
             this.property.min = this.property.min != undefined ? this.this.min = this.property.min : null;
@@ -213,25 +264,26 @@ class Input extends Widget {
             this.property.required = this.property.required != undefined ? this.this.required = this.property.required : null;
             this.property.value = this.property.value != undefined ? this.this.value = this.property.value : null;
 
-            this.autocomplete = value => this.this.autocomplete = value;
-            this.max = value => this.this.max = value;
-            this.min = value => this.this.min = value;
-            this.placeholder = value => this.this.placeholder = value;
-            this.required = value => this.this.required = value;
-            this.value = value => { return this.this.value = value != undefined ? value : this.this.value; };
+            this.autocomplete = value => this.this.autocomplete = value != undefined ? value :this.this.autocomplete;
+            this.max = value => this.this.max = value != undefined ? value :this.this.max;
+            this.min = value => this.this.min = value != undefined ? value :this.this.min;
+            this.placeholder = value => this.this.placeholder = value != undefined ? value :this.this.placeholder;
+            this.required = value => this.this.required = value != undefined ? value :this.this.required;
+            this.value = value => this.this.value = value != undefined ? value : this.this.value;
         }
 
-
-        //this.property.password  = this.property.password == true? this.this.setAttribute('type','password') : null ;
-        this.property.type = ['number', 'date', 'datetime', 'datetime-local', 'month', 'week', 'email', 'text', 'password'].includes(this.property.type) ? this.this.type = this.property.type : this.this.type = 'text';
+        this.this.type = ['number', 'date', 'datetime', 'datetime-local', 'month', 'week', 'email', 'text', 'password'].includes(this.property.type) ? 
+        this.property.type : 'text';
 
         this.property.defaultValue = this.property.defaultValue != undefined ? this.this.defaultValue = this.property.defaultValue : null;
         this.property.disabled = this.property.disabled != undefined ? this.this.disabled = this.property.disabled : null;
         this.property.readOnly = this.property.readOnly != undefined ? this.this.readOnly = this.property.readOnly : null;
 
-        this.defaultValue = value => this.this.defaultValue = value;
-        this.disabled = value => this.this.disabled = value;
-        this.readOnly = value => this.this.readOnly = value;
+
+        this.text = value => textContent.nodeValue = value != undefined ? value : textContent.nodeValue;
+        this.defaultValue = value => this.this.defaultValue = value != undefined ? value :this.this.defaultValue;
+        this.disabled = value => this.this.disabled = value != undefined ? value :this.this.disabled;
+        this.readOnly = value => this.this.readOnly = value != undefined ? value :this.this.readOnly;
 
         if (['number', 'date', 'datetime', 'datetime-local', 'month', 'week'].includes(this.this.type)) props4Num();
         else if (this.this.type == 'email') {
@@ -240,8 +292,8 @@ class Input extends Widget {
             this.property.pattern = this.property.pattern != undefined ? this.this.pattern = this.property.pattern : null;
             this.property.size = this.property.size != undefined ? this.this.size = this.property.size : null;
 
-            this.pattern = value => this.this.pattern = value;
-            this.size = value => this.this.size = value;
+            this.pattern = value => this.this.pattern = value != undefined ? value :this.this.pattern;
+            this.size = value => this.this.size = value != undefined ? value :this.this.size;
         }
         else {
             this.property.accessKey = this.property.accessKey != undefined ? this.this.accessKey = this.property.accessKey : null;
@@ -249,10 +301,10 @@ class Input extends Widget {
             this.property.maxLength = this.property.maxLength != undefined ? this.this.maxLength = this.property.maxLength : null;
             this.property.tabIndex = this.property.tabIndex != undefined ? this.this.tabIndex = this.property.tabIndex : null;
 
-            this.accessKey = value => this.this.accessKey = value;
-            this.alt = value => this.this.alt = value;
-            this.maxLength = value => this.this.maxLength = value;
-            this.tabIndex = value => this.this.tabIndex = value;
+            this.accessKey = value => this.this.accessKey = value != undefined ? value :this.this.accessKey;
+            this.alt = value => this.this.alt = value != undefined ? value :this.this.alt;
+            this.maxLength = value => this.this.maxLength = value != undefined ? value :this.this.maxLength;
+            this.tabIndex = value => this.this.tabIndex = value != undefined ? value :this.this.tabIndex;
         }
 
         //this.password  = (value) => { value == true ? this.this.setAttribute('type','password') : null;};
@@ -274,10 +326,10 @@ class File extends Widget {
         this.property.files = this.property.files != undefined ? this.this.files = this.property.files : null;
         this.property.multiple = this.property.multiple != undefined ? this.this.multiple = this.property.multiple : null;
 
-        this.accept = value => this.this.accept = value;
-        this.capture = value => this.this.capture = value;
-        this.files = value => this.this.files = value;
-        this.multiple = value => this.this.multiple = value;
+        this.accept = value => this.this.accept = value != undefined ? value : this.this.accept;
+        this.capture = value => this.this.capture = value != undefined ? value : this.this.capture;
+        this.files = value => this.this.files = value != undefined ? value : this.this.files;
+        this.multiple = value => this.this.multiple = value != undefined ? value :this.this.multiple;
 
     }
 }
@@ -297,12 +349,12 @@ class Slider extends Widget {
         this.property.min = this.property.min != undefined ? this.this.min = this.property.min : null;
         this.property.value = this.property.value != undefined ? this.this.value = this.property.value : null;
 
-        this.autocomplete = value => this.this.autocomplete = value;
-        this.defaultValue = value => this.this.defaultValue = value;
-        this.disabled = value => this.this.disabled = value;
-        this.max = value => this.this.max = value;
-        this.min = value => this.this.min = value;
-        this.value = value => { return this.this.value = value != undefined ? value : this.this.value; };
+        this.autocomplete = value => this.this.autocomplete = value != undefined ? value :this.this.autocomplete;
+        this.defaultValue = value => this.this.defaultValue = value != undefined ? value :this.this.defaultValue;
+        this.disabled = value => this.this.disabled = value != undefined ? value :this.this.disabled;
+        this.max = value => this.this.max = value != undefined ? value :this.this.max;
+        this.min = value => this.this.min = value != undefined ? value :this.this.min;
+        this.value = value => this.this.value = value != undefined ? value : this.this.value;
 
     }
 }
@@ -322,11 +374,11 @@ class Color extends Widget {
         this.property.disabled = this.property.disabled != undefined ? this.this.disabled = this.property.disabled : null;
         this.property.value = this.property.value != undefined ? this.this.value = this.property.value : null;
 
-        this.span = value => { return this.this.span = value != undefined ? value : this.this.span; };
-        this.autocomplete = value => this.this.autocomplete = value;
-        this.defaultValue = value => this.this.defaultValue = value;
-        this.disabled = value => this.this.disabled = value;
-        this.value = value => { return this.this.value = value != undefined ? value : this.this.value; };
+        this.span = value => this.this.span = value != undefined ? value : this.this.span;
+        this.autocomplete = value => this.this.autocomplete = value != undefined ? value :this.this.autocomplete;
+        this.defaultValue = value => this.this.defaultValue = value != undefined ? value :this.this.defaultValue;
+        this.disabled = value => this.this.disabled = value != undefined ? value :this.this.disabled;
+        this.value = value => this.this.value = value != undefined ? value : this.this.value;
 
     }
 }
@@ -342,8 +394,10 @@ class Image extends Widget {
         this.property.url = this.property.url != undefined ? this.this.setAttribute('src', this.property.url) : null;
         this.property.alt != undefined ? this.this.setAttribute('alt', this.property.alt) : null;
 
-        this.url = value => this.this.setAttribute('src', value);
-        this.alt = value => this.this.setAttribute('alt', value);
+        //this.url = value => this.this.setAttribute('src', value);
+        this.url = value => this.this.src != undefined ? value :this.this.src;
+        // this.alt = value => this.this.setAttribute('alt', value);
+        this.alt = value => this.this.alt != undefined ? value :this.this.alt;
 
     }
 }
@@ -354,19 +408,19 @@ class Voice extends Widget {
         Voice.property.tag = 'audio';
         Voice.property.controls = 'controls';
         super(Voice.property);
-        let preloadMode = ['auto', 'meta', 'none'];
 
         this.property.url = this.property.url != undefined ? this.this.setAttribute('src', this.property.url) : null;
         this.this.autoplay = this.property.autoplay;
         this.this.loop = this.property.loop;
         this.this.muted = this.property.muted;
-        this.this.preload = preloadMode.includes(this.property.preload) ? this.property.preload : 'none';
+        this.this.preload = ['auto', 'meta', 'none'].includes(this.property.preload) ? this.property.preload : 'none';
 
-        this.url = value => this.this.setAttribute('src', value);
-        this.autoplay = value => this.this.autoplay = value;
-        this.loop = value => this.this.loop = value;
-        this.muted = value => this.this.muted = value;
-        this.preload = value => preloadMode.includes(value) ? value : 'none';
+        // this.url = value => this.this.setAttribute('src', value);
+        this.url = value => this.this.src = value != undefined ? value :this.this.src;
+        this.autoplay = value => this.this.autoplay = value != undefined ? value :this.this.autoplay;
+        this.loop = value => this.this.loop = value != undefined ? value :this.this.loop;
+        this.muted = value => this.this.muted = value != undefined ? value :this.this.muted;
+        this.preload = value => ['auto', 'meta', 'none'].includes(value) ? value : 'none';
     }
 }
 
@@ -377,21 +431,21 @@ class Video extends Widget {
         Video.property.tag = 'video';
         Video.property.controls = 'controls';
         super(Video.property);
-        let preloadMode = ['auto', 'meta', 'none'];
 
         this.property.url = this.property.url != undefined ? this.this.setAttribute('src', this.property.url) : null;
         this.property.poster = this.property.poster != undefined ? this.this.setAttribute('poster', this.property.poster) : null;
         this.this.autoplay = this.property.autoplay;
         this.this.loop = this.property.loop;
         this.this.muted = this.property.muted;
-        this.this.preload = preloadMode.includes(this.property.preload) ? this.property.preload : 'none';
+        this.this.preload = ['auto', 'meta', 'none'].includes(this.property.preload) ? this.property.preload : 'none';
 
-        this.url = value => this.this.setAttribute('src', value);
-        this.autoplay = value => this.this.autoplay = value;
-        this.loop = value => this.this.loop = value;
-        this.muted = value => this.this.muted = value;
-        this.poster = value => this.this.poster = value;
-        this.preload = value => preloadMode.includes(value) ? value : 'none';
+        // this.url = value => this.this.setAttribute('src', value);
+        this.url = value => this.this.src = value != undefined ? value :this.this.src;
+        this.autoplay = value => this.this.autoplay = value != undefined ? value :this.this.autoplay;
+        this.loop = value => this.this.loop = value != undefined ? value :this.this.loop;
+        this.muted = value => this.this.muted = value != undefined ? value :this.this.muted;
+        this.poster = value => this.this.poster = value != undefined ? value :this.this.poster;
+        this.preload = value => ['auto', 'meta', 'none'].includes(value) ? value : 'none';
     }
 }
 
