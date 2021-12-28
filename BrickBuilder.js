@@ -21,18 +21,14 @@ WidgetBuilder = {
             widget.setAttribute('style', style.replace(/,/g, ';'));
         }
 
-        for (let key in prop.attr) {
-            //(key != 'id') && (key != 'class') && (key != 'style') && (key != 'name') ? widget.setAttribute(key, prop.attr[key]) : null;
-            ! basicProps.includes(key) ? widget.setAttribute(key, prop.attr[key]) : null;
-        }
-
+        for (let key in prop.other) ! basicProps.includes(key) ? widget.setAttribute(key, prop.other[key]) : null;
         //widget.innerHTML = prop.text != undefined ? prop.text : null;
 
         return widget;
     },
 
     //attr: (attribute, value, widget) => { (attribute != 'id') && (attribute != 'class') && (attribute != 'style') && (attribute != 'name') ? widget.this.setAttribute(attribute, value) : null; },
-    attr: (attribute, value, widget) => { 
+    other: (attribute, value, widget) => { 
         ! basicProps.includes(attribute) ? 
             vaule != undefined ?
                 widget.this.setAttribute(attribute, value) 
@@ -123,7 +119,7 @@ class Widget {
         this.this = WidgetBuilder.init(this.property);
         //this.this.innerHTML = prop.text != undefined ? prop.text : null;
 
-        this.attr = (attribute, value) => { WidgetBuilder.attr(attribute, value, this); };//改other
+        this.other = (attribute, value) => { WidgetBuilder.other(attribute, value, this); };//改other
         this.id = value => WidgetBuilder.id(value, this);
         this.name = value => WidgetBuilder.name(value, this);
         this.class = value => WidgetBuilder.class(value, this);
@@ -456,11 +452,11 @@ class Component {
         this.property.style = {display : 'flex', flex_direction : this.property.layout, flex_wrap : this.property.wrap, ...prop.style};
         delete this.property.value;
         delete this.property.text;
-        
+
         this.this = WidgetBuilder.init(this.property);
 
         for (let childWidgets in this.property.children) this.this.appendChild(this.property.children[childWidgets].this);
-        this.attr = (attribute, value) => { WidgetBuilder.attr(attribute, value, this); };//改other
+        this.other = (attribute, value) => { WidgetBuilder.other(attribute, value, this); };//改other
         this.id = value => WidgetBuilder.id(value, this);
         this.name = value => WidgetBuilder.name(value, this);
         this.class = value => WidgetBuilder.class(value, this);
